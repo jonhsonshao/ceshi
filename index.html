@@ -58,17 +58,22 @@ body{
     display:flex;
     align-items:center;
     gap:20px;
+    max-width:50%; /* 右侧整体不越过屏幕中线 */
+    justify-content:flex-end;
 }
 .wallet-box{
-    padding:9px 16px;
-    border-radius:10px;
+    padding:6px 10px;
+    border-radius:8px;
     border:1px solid rgba(0,184,255,0.3);
     color:var(--era-blue);
     background:rgba(0,184,255,0.08);
-    font-size:14px;
+    font-size:12px; /* 缩小字体 */
     cursor:pointer;
     transition:0.25s;
     white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:220px;
 }
 .wallet-box:hover{
     box-shadow:0 0 12px rgba(0,184,255,0.25);
@@ -86,6 +91,7 @@ body{
     gap:5px;
     cursor:pointer;
     transition:0.25s;
+    flex-shrink:0;
 }
 .menu-trigger:hover{
     border-color:rgba(146,76,255,0.4);
@@ -265,13 +271,22 @@ body{
     transform:scale(0.96);
 }
 @media(max-width:540px){
-    .header-bar{padding:16px 20px;}
-    .logo-text{font-size:18px;}
-    .hero-title{font-size:30px;}
-    .desc-card{padding:24px 20px;}
-    .desc-card p{font-size:15px;}
-    .allocation-card{padding:24px 20px;}
-    .allocation-card li{font-size:14px; line-height:2;}
+    .header-bar{padding:12px 16px;}
+    .logo-text{font-size:17px;}
+    .header-right{
+        max-width:50%; /* 手机端右侧区域最大50%屏幕，不越过中线 */
+        gap:10px;
+    }
+    .wallet-box{
+        font-size:11px;
+        padding:5px 8px;
+        max-width:140px;
+    }
+    .hero-title{font-size:26px;}
+    .desc-card{padding:20px 16px;}
+    .desc-card p{font-size:14px;}
+    .allocation-card{padding:20px 16px;}
+    .allocation-card li{font-size:13px; line-height:2;}
     .card-grid{grid-template-columns:1fr;}
     .side-nav{width:calc(100% - 20px);right:calc(-100% + 10px);}
 }
