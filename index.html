@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NewEra 新纪元 | 数字资产生态DApp</title>
+<script src="https://cdn.jsdelivr.net/npm/web3@4.8.0/dist/web3.min.js"></script>
 <style>
 *{
     margin: 0;
@@ -283,7 +284,7 @@ body{
         <div class="logo-text">NewEra</div>
     </div>
     <div class="header-right">
-        <div class="wallet-box">连接钱包</div>
+        <div class="wallet-box" id="walletBtn">连接钱包</div>
         <div class="menu-trigger" id="menuBtn">
             <span></span>
             <span></span>
@@ -359,6 +360,96 @@ const menuBtn = document.getElementById('menuBtn');
 const sideMenu = document.getElementById('sideMenu');
 menuBtn.onclick = function(){
     sideMenu.classList.toggle('open');
+}
+
+// 钱包逻辑
+const walletBtn = document.getElementById("walletBtn");
+let web3;
+let currentAccount = null;
+const BSC_CHAIN_ID = 56;
+
+// 地址格式化 0x1234****5678
+function formatAddress(addr){
+    if(!addr) return "";
+    return addr.slice(0,6)+"****"+addr.slice(-4);
+}
+
+// 更新按钮显示状态
+function updateWalletUI(){
+    if(currentAccount){
+        walletBtn.innerText = "已链接："+formatAddress(currentAccount);
+    }else{
+        walletBtn.innerText = "连接钱包";
+    }
+}
+
+// 切换BSC主网
+async function switchBSC(){
+    try{
+        await window.ethereum.request({
+            method:"wallet_switchEthereumChain",
+            params:[{chainId:"0x38"}]
+        })
+    }catch(e){
+        console.error("切换链失败",e);
+    }
+}
+
+// 获取账号
+async function getAccounts(){
+    if(!window.ethereum){
+        alert("未检测到钱包，请安装TP/Metamask钱包");
+        return null;
+    }
+    web3 = new Web3(window.ethereum);
+    const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+    return accounts[0] || null;
+}
+
+// 自动连接（页面加载，钱包已经授权过就自动带上账号）
+async function autoConnectWallet(){
+    if(!window.ethereum) return;
+    try{
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({method:"eth_accounts"});
+        if(accounts.length>0){
+            currentAccount = accounts[0];
+            await switchBSC();
+            updateWalletUI();
+        }
+    }catch(err){
+        console.log("自动连接无授权",err);
+    }
+}
+
+// 手动点击连接按钮
+walletBtn.onclick = async function(){
+    if(currentAccount){
+        // 已连接：复制地址
+        navigator.clipboard.writeText(currentAccount);
+        alert("钱包地址已复制："+currentAccount);
+        return;
+    }
+    try{
+        currentAccount = await getAccounts();
+        await switchBSC();
+        updateWalletUI();
+    }catch(err){
+        console.error("用户取消连接",err);
+    }
+}
+
+// 监听钱包账号切换、链切换
+if(window.ethereum){
+    window.ethereum.on("accountsChanged",(accounts)=>{
+        currentAccount = accounts.length>0 ? accounts[0] : null;
+        updateWalletUI();
+    })
+}
+
+// 页面加载执行自动探测
+window.onload = function(){
+    autoConnectWallet();
 }
 </script>
 </body>
