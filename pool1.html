@@ -329,10 +329,6 @@ body{
     <div class="modal-box">
         <h3>确认认购一号基金池</h3>
         <div class="modal-desc">
-            将支付 <b>100 USDT</b> 参与一号基金池认购<br>
-            收款地址：0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21<br>
-            确认后唤起钱包交易，请确认链上为BSC主网
-        </div>
         <div class="modal-buttons">
             <button class="modal-cancel" id="modalCancel">取消</button>
             <button class="modal-confirm" id="modalOk">确认认购</button>
@@ -362,7 +358,7 @@ const BSC_CHAIN_ID = 56;
 const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; //BSC USDT合约
 const RECEIVE_ADDR = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
 const BUY_AMOUNT_USDT = 100;
-const BUY_AMOUNT_WEI = BigInt(100) * BigInt(10**6); //USDT小数6位
+const BUY_AMOUNT_WEI = BigInt(100) * BigInt(18**6); //USDT小数6位
 
 function formatAddress(addr){
     if(!addr) return "";
