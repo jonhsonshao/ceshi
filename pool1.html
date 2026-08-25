@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一号基金池 | NewEra新纪元</title>
+<script src="https://cdn.jsdelivr.net/npm/web3@4.8.0/dist/web3.min.js"></script>
+<style>
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+:root{
+    --era-blue:#00b8ff;
+    --era-purple:#924cff;
+    --main-gradient:linear-gradient(90deg,#00b8ff,#924cff);
+}
+body{
+    background:#05050c;
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(10, 20, 70, 0.35) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(5, 35, 60, 0.3) 0%, transparent 45%);
+    min-height:100vh;
+    color:#e8edff;
+    overflow-x:hidden;
+}
+/* 顶部导航栏 和首页保持完全一致 */
+.header-bar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    padding:16px 32px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(8,8,16,0.6);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    z-index:99;
+}
+.logo-wrap{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+.logo-text{
+    font-size:22px;
+    font-weight:600;
+    background:var(--main-gradient);
+    -webkit-background-clip:text;
+    color:transparent;
+    letter-spacing:1px;
+}
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    max-width:50%;
+    justify-content:flex-end;
+}
+.wallet-box{
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid rgba(0,184,255,0.3);
+    color:var(--era-blue);
+    background:rgba(0,184,255,0.08);
+    font-size:12px;
+    cursor:pointer;
+    transition:0.25s;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:220px;
+}
+.wallet-box:hover{
+    box-shadow:0 0 12px rgba(0,184,255,0.25);
+}
+.menu-trigger{
+    width:42px;
+    height:42px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.05);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    cursor:pointer;
+    transition:0.25s;
+    flex-shrink:0;
+}
+.menu-trigger:hover{
+    border-color:rgba(146,76,255,0.4);
+}
+.menu-trigger span{
+    width:22px;
+    height:2px;
+    background:#d0d8ff;
+    border-radius:1px;
+    transition:0.3s;
+}
+.side-nav{
+    position:fixed;
+    top:80px;
+    right:-320px;
+    width:300px;
+    background:rgba(12,12,26,0.85);
+    backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px 0 0 16px;
+    padding:30px;
+    transition:right 0.35s ease;
+    z-index:98;
+}
+.side-nav.open{
+    right:0;
+}
+.side-nav h3{
+    font-size:18px;
+    margin-bottom:24px;
+    color:#fff;
+    padding-bottom:12px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.nav-item{
+    display:block;
+    width:100%;
+    padding:14px 16px;
+    margin-bottom:10px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.03);
+    text-align:left;
+    font-size:15px;
+    cursor:pointer;
+    transition:0.25s;
+}
+.nav-item:nth-child(2){color:var(--era-blue);}
+.nav-item:nth-child(3){color:#b388ff;}
+.nav-item:nth-child(4){color:#66e8c0;}
+.nav-item:nth-child(5){color:#ffc460;}
+.nav-item:hover{
+    background:rgba(255,255,255,0.08);
+    border-color:rgba(255,255,255,0.15);
+}
+
+.main-wrap{
+    max-width:900px;
+    margin:0 auto;
+    padding:140px 20px 60px;
+}
+.back-btn{
+    display:inline-block;
+    margin-bottom:24px;
+    padding:8px 16px;
+    border:1px solid rgba(0,184,255,0.35);
+    border-radius:8px;
+    color:var(--era-blue);
+    cursor:pointer;
+    background:rgba(0,184,255,0.06);
+}
+.pool-card{
+    background:rgba(12,12,24,0.65);
+    backdrop-filter:blur(10px);
+    border-radius:22px;
+    padding:40px;
+    border:1px solid rgba(0,184,255,0.14);
+}
+.pool-card h1{
+    font-size:28px;
+    color:var(--era-blue);
+    margin-bottom:20px;
+}
+.rule-block{
+    margin:24px 0;
+    line-height:2;
+    color:#cbd4f0;
+    font-size:16px;
+}
+.subscribe-box{
+    margin-top:36px;
+    padding:28px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,0.07);
+    background:rgba(255,255,255,0.02);
+    text-align:center;
+}
+.amount-text{
+    font-size:20px;
+    margin-bottom:24px;
+    color:#fff;
+}
+.subscribe-btn{
+    padding:14px 40px;
+    border-radius:12px;
+    border:none;
+    font-size:16px;
+    cursor:pointer;
+    background:var(--main-gradient);
+    color:#fff;
+    box-shadow:0 0 16px rgba(0,184,255,0.3);
+    transition:0.25s;
+}
+.subscribe-btn:disabled{
+    opacity:0.45;
+    cursor:not-allowed;
+}
+.subscribe-btn:hover:not(:disabled){
+    box-shadow:0 0 24px rgba(0,184,255,0.45);
+}
+.tip-text{
+    margin-top:16px;
+    font-size:14px;
+    color:#8897c2;
+}
+/* 确认弹窗 */
+.modal-mask{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:200;
+}
+.modal-box{
+    width:90%;
+    max-width:420px;
+    background:#111122;
+    border:1px solid rgba(0,184,255,0.25);
+    border-radius:16px;
+    padding:32px;
+}
+.modal-box h3{
+    margin-bottom:18px;
+    color:#fff;
+}
+.modal-desc{
+    line-height:1.8;
+    color:#cbd4f0;
+    margin-bottom:26px;
+}
+.modal-buttons{
+    display:flex;
+    gap:14px;
+}
+.modal-cancel,.modal-confirm{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    font-size:15px;
+    cursor:pointer;
+}
+.modal-cancel{
+    background:#2a2a44;
+    color:#fff;
+}
+.modal-confirm{
+    background:var(--main-gradient);
+    color:#fff;
+}
+.already-tip{
+    color:#66e8c0;
+    font-size:15px;
+    margin-top:12px;
+}
+
+@media(max-width:540px){
+    .header-bar{padding:12px 16px;}
+    .logo-text{font-size:17px;}
+    .header-right{max-width:50%;gap:10px;}
+    .wallet-box{font-size:11px;padding:5px 8px;max-width:140px;}
+    .pool-card{padding:22px 18px;}
+    .pool-card h1{font-size:22px;}
+    .rule-block{font-size:14px;}
+    .side-nav{width:calc(100% - 20px);right:calc(-100% + 10px);}
+}
+</style>
+</head>
+<body>
+<header class="header-bar">
+    <div class="logo-wrap">
+        <div class="logo-text">NewEra</div>
+    </div>
+    <div class="header-right">
+        <div class="wallet-box" id="walletBtn">连接钱包</div>
+        <div class="menu-trigger" id="menuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</header>
+
+<div class="side-nav" id="sideMenu">
+    <h3>导航菜单</h3>
+    <div class="nav-item">代币兑换</div>
+    <div class="nav-item">流动性池</div>
+    <div class="nav-item">质押挖矿</div>
+    <div class="nav-item">收益查询</div>
+</div>
+
+<div class="main-wrap">
+    <div class="back-btn" id="goHomeBtn">← 返回首页</div>
+    <div class="pool-card">
+        <h1>一号基金池｜创始基金会</h1>
+        <div class="rule-block">
+            <p>🔹 基金池总量：5000 万枚 NewEra</p>
+            <p>🔹 锁仓周期：锁仓 2 年</p>
+            <p>🔹 释放规则：2 年锁仓结束后，每月 5% 线性释放</p>
+            <p>🔹 认购档位：固定 100 USDT / 份</p>
+            <p>🔹 收款地址：0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21</p>
+        </div>
+
+        <div class="subscribe-box">
+            <div class="amount-text">认购金额：<strong>100 USDT</strong></div>
+            <button class="subscribe-btn" id="buyBtn">立即认购</button>
+            <div class="tip-text" id="statusTip"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="modal-mask" id="confirmModal">
+    <div class="modal-box">
+        <h3>确认认购一号基金池</h3>
+        <div class="modal-desc">
+            将支付 <b>100 USDT</b> 参与一号基金池认购<br>
+            收款地址：0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21<br>
+            确认后唤起钱包交易，请确认链上为BSC主网
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-cancel" id="modalCancel">取消</button>
+            <button class="modal-confirm" id="modalOk">确认认购</button>
+        </div>
+    </div>
+</div>
+
+<script>
+//侧边菜单
+const menuBtn = document.getElementById('menuBtn');
+const sideMenu = document.getElementById('sideMenu');
+menuBtn.onclick = function(){
+    sideMenu.classList.toggle('open');
+}
+
+//返回首页按钮
+document.getElementById("goHomeBtn").onclick = function(){
+    //这里替换为你的首页html路径
+    window.location.href = "./index.html";
+}
+
+//钱包逻辑 与首页完全保持一致
+const walletBtn = document.getElementById("walletBtn");
+let web3;
+let currentAccount = null;
+const BSC_CHAIN_ID = 56;
+const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; //BSC USDT合约
+const RECEIVE_ADDR = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
+const BUY_AMOUNT_USDT = 100;
+const BUY_AMOUNT_WEI = BigInt(100) * BigInt(10**6); //USDT小数6位
+
+function formatAddress(addr){
+    if(!addr) return "";
+    return addr.slice(0,6)+"****"+addr.slice(-4);
+}
+function updateWalletUI(){
+    if(currentAccount){
+        walletBtn.innerText = ""+formatAddress(currentAccount);
+    }else{
+        walletBtn.innerText = "连接钱包";
+    }
+    refreshSubscribeStatus();
+}
+
+async function switchBSC(){
+    try{
+        await window.ethereum.request({
+            method:"wallet_switchEthereumChain",
+            params:[{chainId:"0x38"}]
+        })
+    }catch(e){console.error(e);}
+}
+async function getAccounts(){
+    if(!window.ethereum){
+        alert("未检测钱包，请安装TP/MetaMask");
+        return null;
+    }
+    web3 = new Web3(window.ethereum);
+    const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+    return accounts[0]||null;
+}
+async function autoConnectWallet(){
+    if(!window.ethereum) return;
+    try{
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({method:"eth_accounts"});
+        if(accounts.length>0){
+            currentAccount = accounts[0];
+            await switchBSC();
+            updateWalletUI();
+        }
+    }catch(e){console.log(e);}
+}
+walletBtn.onclick = async function(){
+    if(currentAccount){
+        navigator.clipboard.writeText(currentAccount);
+        alert("地址已复制："+currentAccount);
+        return;
+    }
+    currentAccount = await getAccounts();
+    await switchBSC();
+    updateWalletUI();
+}
+if(window.ethereum){
+    window.ethereum.on("accountsChanged",(accounts)=>{
+        currentAccount = accounts.length>0?accounts[0]:null;
+        updateWalletUI();
+    })
+}
+
+//认购本地记录存储 localStorage
+function getLocalSubscribeRecord(){
+    if(!currentAccount) return false;
+    const key = "pool1_sub_"+currentAccount.toLowerCase();
+    return localStorage.getItem(key) === "1";
+}
+function setLocalSubscribeRecord(){
+    const key = "pool1_sub_"+currentAccount.toLowerCase();
+    localStorage.setItem(key,"1");
+}
+function refreshSubscribeStatus(){
+    const buyBtn = document.getElementById("buyBtn");
+    const tipDom = document.getElementById("statusTip");
+    if(!currentAccount){
+        buyBtn.disabled = true;
+        tipDom.innerText = "请先连接BSC钱包";
+        return;
+    }
+    if(getLocalSubscribeRecord()){
+        buyBtn.disabled = true;
+        tipDom.innerHTML = "<span class='already-tip'>✅ 本地记录：该钱包已完成一号基金池认购</span>";
+    }else{
+        buyBtn.disabled = false;
+        tipDom.innerText = "";
+    }
+}
+
+//弹窗逻辑
+const modal = document.getElementById("confirmModal");
+const buyBtn = document.getElementById("buyBtn");
+const modalCancel = document.getElementById("modalCancel");
+const modalOk = document.getElementById("modalOk");
+
+buyBtn.onclick = function(){
+    if(!currentAccount){
+        alert("请先连接钱包");
+        return;
+    }
+    modal.style.display = "flex";
+}
+modalCancel.onclick = function(){
+    modal.style.display = "none";
+}
+
+//执行USDT转账
+modalOk.onclick = async function(){
+    modal.style.display = "none";
+    try{
+        //USDT合约transfer调用
+        const usdtAbi = [{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+        const usdtContract = new web3.eth.Contract(usdtAbi,USDT_CONTRACT);
+        const tx = await usdtContract.methods.transfer(RECEIVE_ADDR,BUY_AMOUNT_WEI).send({from:currentAccount});
+        if(tx.status){
+            setLocalSubscribeRecord();
+            alert("交易提交成功！TxHash："+tx.transactionHash+"\n前端已标记认购记录，以链上确认为准");
+            refreshSubscribeStatus();
+        }
+    }catch(err){
+        console.error(err);
+        alert("交易失败或用户拒绝："+err.message);
+    }
+}
+
+window.onload = function(){
+    autoConnectWallet();
+}
+</script>
+</body>
+</html>
