@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>一号基金池 | NewEra新纪元</title>
-<script src="https://cdn.jsdelivr.net/npm/web3@4.8.0/dist/web3.min.js"></script>
+<!-- 替换为Ethers V5，弃用web3.js v4 -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
 *{
     margin: 0;
@@ -26,7 +27,6 @@ body{
     color:#e8edff;
     overflow-x:hidden;
 }
-/* 顶部导航栏 和首页保持完全一致 */
 .header-bar{
     position:fixed;
     top:0;
@@ -217,7 +217,6 @@ body{
     font-size:14px;
     color:#8897c2;
 }
-/* 确认弹窗 */
 .modal-mask{
     position:fixed;
     inset:0;
@@ -324,7 +323,6 @@ body{
     </div>
 </div>
 
-<!-- 确认弹窗 -->
 <div class="modal-mask" id="confirmModal">
     <div class="modal-box">
         <h3>确认认购一号基金池</h3>
@@ -339,29 +337,29 @@ body{
 </div>
 
 <script>
-//侧边菜单
 const menuBtn = document.getElementById('menuBtn');
 const sideMenu = document.getElementById('sideMenu');
 menuBtn.onclick = function(){
     sideMenu.classList.toggle('open');
 }
 
-//返回首页按钮
 document.getElementById("goHomeBtn").onclick = function(){
-    //这里替换为你的首页html路径
     window.location.href = "./index.html";
 }
 
-//钱包逻辑 与首页完全保持一致
 const walletBtn = document.getElementById("walletBtn");
-let web3;
+let provider;
+let signer = null;
 let currentAccount = null;
-const BSC_CHAIN_ID = 56;
-const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; //BSC USDT合约
+const BSC_CHAIN_ID = 56n;
+const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955";
 const RECEIVE_ADDR = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
-const BUY_AMOUNT_USDT = 100;
-// ✅修复：100 USDT，USDT小数位6位，使用字符串
-const BUY_AMOUNT_WEI = "100000000";
+// ✅100 USDT，6位小数 BigInt，ethers原生支持BigInt，不会编码错乱
+const BUY_AMOUNT = 100n * 10n**6n;
+
+const usdtAbi = [
+    "function transfer(address to, uint256 value) external returns (bool)"
+];
 
 function formatAddress(addr){
     if(!addr) return "";
@@ -369,7 +367,7 @@ function formatAddress(addr){
 }
 function updateWalletUI(){
     if(currentAccount){
-        walletBtn.innerText = ""+formatAddress(currentAccount);
+        walletBtn.innerText = formatAddress(currentAccount);
     }else{
         walletBtn.innerText = "连接钱包";
     }
@@ -378,51 +376,53 @@ function updateWalletUI(){
 
 async function switchBSC(){
     try{
-        await window.ethereum.request({
-            method:"wallet_switchEthereumChain",
-            params:[{chainId:"0x38"}]
-        })
+        await provider.send("wallet_switchEthereumChain", [{chainId:"0x38"}]);
     }catch(e){console.error(e);}
 }
-async function getAccounts(){
-    if(!window.ethereum){
-        alert("未检测钱包，请安装TP/MetaMask");
-        return null;
-    }
-    web3 = new Web3(window.ethereum);
-    const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
-    return accounts[0]||null;
-}
+
 async function autoConnectWallet(){
     if(!window.ethereum) return;
-    try{
-        web3 = new Web3(window.ethereum);
-        const accounts = await window.ethereum.request({method:"eth_accounts"});
-        if(accounts.length>0){
-            currentAccount = accounts[0];
-            await switchBSC();
-            updateWalletUI();
-        }
-    }catch(e){console.log(e);}
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    const accounts = await provider.send("eth_accounts",[]);
+    if(accounts.length>0){
+        currentAccount = accounts[0];
+        signer = provider.getSigner();
+        await switchBSC();
+        updateWalletUI();
+    }
 }
+
 walletBtn.onclick = async function(){
     if(currentAccount){
         navigator.clipboard.writeText(currentAccount);
-        alert("地址已复制："+currentAccount);
+        alert("已复制地址："+currentAccount);
         return;
     }
-    currentAccount = await getAccounts();
+    if(!window.ethereum){
+        alert("未检测钱包，请安装TP/MetaMask");
+        return;
+    }
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    currentAccount = await signer.getAddress();
     await switchBSC();
     updateWalletUI();
 }
+
 if(window.ethereum){
-    window.ethereum.on("accountsChanged",(accounts)=>{
-        currentAccount = accounts.length>0?accounts[0]:null;
+    window.ethereum.on("accountsChanged", async (accounts)=>{
+        if(accounts.length>0){
+            currentAccount = accounts[0];
+            signer = provider.getSigner();
+        }else{
+            currentAccount = null;
+            signer = null;
+        }
         updateWalletUI();
     })
 }
 
-//认购本地记录存储 localStorage
 function getLocalSubscribeRecord(){
     if(!currentAccount) return false;
     const key = "pool1_sub_"+currentAccount.toLowerCase();
@@ -449,7 +449,6 @@ function refreshSubscribeStatus(){
     }
 }
 
-//弹窗逻辑
 const modal = document.getElementById("confirmModal");
 const buyBtn = document.getElementById("buyBtn");
 const modalCancel = document.getElementById("modalCancel");
@@ -466,22 +465,20 @@ modalCancel.onclick = function(){
     modal.style.display = "none";
 }
 
-//执行USDT转账
 modalOk.onclick = async function(){
     modal.style.display = "none";
     try{
-        //USDT合约transfer调用
-        const usdtAbi = [{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}];
-        const usdtContract = new web3.eth.Contract(usdtAbi,USDT_CONTRACT);
-        const tx = await usdtContract.methods.transfer(RECEIVE_ADDR, BUY_AMOUNT_WEI).send({from:currentAccount});
-        if(tx.status){
-            setLocalSubscribeRecord();
-            alert("交易提交成功！TxHash："+tx.transactionHash+"\n前端已标记认购记录，以链上确认为准");
-            refreshSubscribeStatus();
-        }
+        const usdtContract = new ethers.Contract(USDT_CONTRACT, usdtAbi, signer);
+        // ethers5 原生支持BigInt，ABI编码不会乱，TP钱包显示正确100USDT
+        const tx = await usdtContract.transfer(RECEIVE_ADDR, BUY_AMOUNT);
+        alert("交易已提交！TxHash："+tx.hash+"\n等待链上确认");
+        await tx.wait();
+        setLocalSubscribeRecord();
+        alert("✅交易确认成功");
+        refreshSubscribeStatus();
     }catch(err){
         console.error(err);
-        alert("交易失败或用户拒绝："+err.message);
+        alert("交易失败/用户拒绝签名："+err.message);
     }
 }
 
