@@ -312,8 +312,8 @@ body{
             <p>🔹 锁仓周期：锁仓 1 年</p>
             <p>🔹 释放规则：1 年锁仓结束后，每月 4% 线性释放</p>
             <p>🔹 认购档位：固定 100 USDT / 份</p>
-            <p>🔹 招募价：0.0005U/枚（开盘价一半）</p>
-            <p>🔹 收款地址：0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21</p>
+            <p>🔹 招募价：0.0005U/枚</p>
+            <p>🔹 获取数量：20万枚</p>
         </div>
 
         <div class="subscribe-box">
@@ -329,8 +329,6 @@ body{
         <h3>确认认购二号基金池</h3>
         <div class="modal-desc">
             将支付 <b>100 USDT</b> 参与二号基金池认购<br>
-            收款地址：0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21<br>
-            确认后唤起钱包交易，请确认链上为BSC主网
         </div>
         <div class="modal-buttons">
             <button class="modal-cancel" id="modalCancel">取消</button>
@@ -356,8 +354,7 @@ let signer = null;
 let currentAccount = null;
 const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955";
 const RECEIVE_ADDR = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
-// ✅标准方式：ethers.utils.parseUnits，BSC‑USDT 6位小数，彻底修复TP钱包解析错乱
-const BUY_AMOUNT = ethers.utils.parseUnits("100",6);
+const BUY_AMOUNT = ethers.utils.parseUnits("100",18);
 
 const usdtAbi = [
     "function transfer(address to, uint256 value) external returns (bool)"
