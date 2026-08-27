@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>二号基金池 | NewEra新纪元</title>
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+<title>二号基金池 | 共建节点 NewEra</title>
+<script src="https://cdn.jsdelivr.net/npm/web3@4.8.0/dist/web3.min.js"></script>
 <style>
 *{
     margin: 0;
@@ -15,6 +15,7 @@
 :root{
     --era-blue:#00b8ff;
     --era-purple:#924cff;
+    --era-violet:#b388ff;
     --main-gradient:linear-gradient(90deg,#00b8ff,#924cff);
 }
 body{
@@ -26,6 +27,7 @@ body{
     color:#e8edff;
     overflow-x:hidden;
 }
+/* 顶部导航栏 */
 .header-bar{
     position:fixed;
     top:0;
@@ -102,6 +104,7 @@ body{
     border-radius:1px;
     transition:0.3s;
 }
+/* 侧边抽屉导航面板 */
 .side-nav{
     position:fixed;
     top:80px;
@@ -146,136 +149,117 @@ body{
     background:rgba(255,255,255,0.08);
     border-color:rgba(255,255,255,0.15);
 }
-
+/* 主内容 */
 .main-wrap{
-    max-width:900px;
+    max-width:920px;
     margin:0 auto;
     padding:140px 20px 60px;
 }
-.back-btn{
-    display:inline-block;
-    margin-bottom:24px;
-    padding:8px 16px;
-    border:1px solid rgba(0,184,255,0.35);
-    border-radius:8px;
-    color:var(--era-blue);
-    cursor:pointer;
-    background:rgba(0,184,255,0.06);
+.page-title{
+    text-align:center;
+    font-size:38px;
+    margin-bottom:30px;
+    color:var(--era-violet);
+    text-shadow:0 0 12px rgba(179,136,255,0.35);
 }
 .pool-card{
-    background:rgba(12,12,24,0.65);
-    backdrop-filter:blur(10px);
+    background:rgba(12,12,24,0.68);
+    backdrop-filter:blur(12px);
     border-radius:22px;
+    border:1px solid rgba(179,136,255,0.18);
     padding:40px;
-    border:1px solid rgba(0,184,255,0.14);
+    margin-bottom:30px;
 }
-.pool-card h1{
-    font-size:28px;
-    color:var(--era-blue);
+.pool-card h3{
+    font-size:22px;
+    color:var(--era-violet);
     margin-bottom:20px;
 }
-.rule-block{
-    margin:24px 0;
-    line-height:2;
+.rule-list{
+    list-style:none;
+    margin-bottom:36px;
+}
+.rule-list li{
     color:#cbd4f0;
+    line-height:2.1;
     font-size:16px;
+    padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
 }
-.subscribe-box{
-    margin-top:36px;
-    padding:28px;
+.rule-list li:last-child{
+    border-bottom:none;
+}
+.buy-panel{
+    background:rgba(20,16,36,0.6);
     border-radius:16px;
-    border:1px solid rgba(255,255,255,0.07);
-    background:rgba(255,255,255,0.02);
-    text-align:center;
+    padding:30px;
+    border:1px solid rgba(179,136,255,0.14);
 }
-.amount-text{
-    font-size:20px;
-    margin-bottom:24px;
-    color:#fff;
+.buy-info-row{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 0;
+    font-size:16px;
+    color:#d1d8ff;
+    border-bottom:1px solid rgba(255,255,255,0.06);
 }
-.subscribe-btn{
-    padding:14px 40px;
+.buy-info-row:last-child{
+    border:none;
+}
+.join-btn{
+    width:100%;
+    margin-top:28px;
+    padding:14px;
     border-radius:12px;
     border:none;
-    font-size:16px;
+    font-size:17px;
     cursor:pointer;
-    background:var(--main-gradient);
-    color:#fff;
-    box-shadow:0 0 16px rgba(0,184,255,0.3);
-    transition:0.25s;
+    background:linear-gradient(90deg,#b388ff,#924cff);
+    color:#ffffff;
+    box-shadow:0 0 18px rgba(179,136,255,0.35);
+    transition:0.24s;
 }
-.subscribe-btn:disabled{
+.join-btn:hover{
+    box-shadow:0 0 26px rgba(179,136,255,0.5);
+}
+.join-btn:active{
+    transform:scale(0.97);
+}
+.join-btn:disabled{
     opacity:0.45;
     cursor:not-allowed;
+    box-shadow:none;
+    transform:none;
 }
-.subscribe-btn:hover:not(:disabled){
-    box-shadow:0 0 24px rgba(0,184,255,0.45);
-}
-.tip-text{
+.status-tip{
+    text-align:center;
     margin-top:16px;
-    font-size:14px;
-    color:#8897c2;
-}
-.modal-mask{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.7);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:200;
-}
-.modal-box{
-    width:90%;
-    max-width:420px;
-    background:#111122;
-    border:1px solid rgba(0,184,255,0.25);
-    border-radius:16px;
-    padding:32px;
-}
-.modal-box h3{
-    margin-bottom:18px;
-    color:#fff;
-}
-.modal-desc{
-    line-height:1.8;
-    color:#cbd4f0;
-    margin-bottom:26px;
-}
-.modal-buttons{
-    display:flex;
-    gap:14px;
-}
-.modal-cancel,.modal-confirm{
-    flex:1;
-    padding:12px;
-    border-radius:10px;
-    border:none;
     font-size:15px;
+    color:#66e8c0;
+}
+.back-link{
+    display:inline-block;
+    margin-bottom:20px;
+    color:#88aaff;
     cursor:pointer;
 }
-.modal-cancel{
-    background:#2a2a44;
-    color:#fff;
-}
-.modal-confirm{
-    background:var(--main-gradient);
-    color:#fff;
-}
-.already-tip{
-    color:#66e8c0;
-    font-size:15px;
-    margin-top:12px;
-}
-
 @media(max-width:540px){
     .header-bar{padding:12px 16px;}
     .logo-text{font-size:17px;}
-    .header-right{max-width:50%;gap:10px;}
-    .wallet-box{font-size:11px;padding:5px 8px;max-width:140px;}
+    .header-right{
+        max-width:50%;
+        gap:10px;
+    }
+    .wallet-box{
+        font-size:11px;
+        padding:5px 8px;
+        max-width:140px;
+    }
+    .page-title{font-size:26px;}
     .pool-card{padding:22px 18px;}
-    .pool-card h1{font-size:22px;}
-    .rule-block{font-size:14px;}
+    .rule-list li{font-size:14px; line-height:1.9;}
+    .buy-panel{padding:20px 16px;}
+    .buy-info-row{font-size:14px;}
     .side-nav{width:calc(100% - 20px);right:calc(-100% + 10px);}
 }
 </style>
@@ -297,190 +281,227 @@ body{
 
 <div class="side-nav" id="sideMenu">
     <h3>导航菜单</h3>
-    <div class="nav-item">代币兑换</div>
-    <div class="nav-item">流动性池</div>
+    <div class="nav-item" onclick="location.href='./index.html'">代币兑换</div>
+    <div class="nav-item" onclick="location.href='./pool1.html'">流动性池</div>
     <div class="nav-item">质押挖矿</div>
     <div class="nav-item">收益查询</div>
 </div>
 
 <div class="main-wrap">
-    <div class="back-btn" id="goHomeBtn">← 返回首页</div>
+    <span class="back-link" onclick="location.href='./index.html'">← 返回首页</span>
+    <h1 class="page-title">二号基金池｜共建节点</h1>
+
     <div class="pool-card">
-        <h1>二号基金池｜共建基金会</h1>
-        <div class="rule-block">
-            <p>🔹 基金池总量：1 亿枚 NewEra</p>
-            <p>🔹 锁仓周期：锁仓 1 年</p>
-            <p>🔹 释放规则：1 年锁仓结束后，每月 4% 线性释放</p>
-            <p>🔹 认购档位：固定 100 USDT / 份</p>
-            <p>🔹 招募价：0.0005U/枚</p>
-            <p>🔹 每份获取：200000 枚 NewEra</p>
-        </div>
+        <h3>共建节点 规则说明</h3>
+        <ul class="rule-list">
+            <li>认购门槛：100 USDT / 每份</li>
+            <li>代币单价：0.0005 U / 枚</li>
+            <li>每份获得：200000 枚 NewEra</li>
+            <li>总额度：1亿枚，仅限500名额，先到先得</li>
+            <li>锁仓周期：锁仓1年</li>
+            <li>释放规则：锁仓期满后，每月4%线性释放</li>
+            <li>推广激励：推广1份共建节点奖励10000枚（无锁仓）</li>
+            <li>直推10个共建节点，可获得创始节点1%份额</li>
+        </ul>
 
-        <div class="subscribe-box">
-            <div class="amount-text">认购金额：<strong>100 USDT</strong></div>
-            <button class="subscribe-btn" id="buyBtn">立即认购</button>
-            <div class="tip-text" id="statusTip"></div>
-        </div>
-    </div>
-</div>
+        <div class="buy-panel">
+            <div class="buy-info-row">
+                <span>认购档位</span>
+                <span>100 USDT 固定一份</span>
+            </div>
+            <div class="buy-info-row">
+                <span>获得代币</span>
+                <span>200000 枚 NewEra</span>
+            </div>
+            <div class="buy-info-row">
+                <span>锁仓时间</span>
+                <span>锁仓 1 年</span>
+            </div>
+            <div class="buy-info-row">
+                <span>释放方式</span>
+                <span>到期每月4%线性释放</span>
+            </div>
 
-<div class="modal-mask" id="confirmModal">
-    <div class="modal-box">
-        <h3>确认认购二号基金池</h3>
-        <div class="modal-desc">
-            将支付 <b>100 USDT</b> 参与二号基金池认购<br>
-            每份获得200000枚NewEra<br>
-            确认后唤起钱包交易，请确认链上为BSC主网
-        </div>
-        <div class="modal-buttons">
-            <button class="modal-cancel" id="modalCancel">取消</button>
-            <button class="modal-confirm" id="modalOk">确认认购</button>
+            <button class="join-btn" id="joinBtn">立即加入</button>
+            <div class="status-tip" id="statusTip"></div>
         </div>
     </div>
 </div>
 
 <script>
+// 侧边菜单
 const menuBtn = document.getElementById('menuBtn');
 const sideMenu = document.getElementById('sideMenu');
 menuBtn.onclick = function(){
     sideMenu.classList.toggle('open');
 }
 
-document.getElementById("goHomeBtn").onclick = function(){
-    window.location.href = "./index.html";
-}
-
+// 钱包全局变量
 const walletBtn = document.getElementById("walletBtn");
-let provider;
-let signer = null;
+let web3;
 let currentAccount = null;
-const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955";
-const RECEIVE_ADDR = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
+const BSC_CHAIN_ID = 56;
+const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT合约
+const RECEIVE_ADDRESS = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
+const AMOUNT_USDT = "100";
+// 本地存储key，按钱包地址记录认购状态
+const STORAGE_KEY_PREFIX = "pool2_subscribed_";
 
-//100 USDT = 100000000，6位小数；直接预编译calldata，绕过TP合约对象编码bug
-const TRANSFER_CALLDATA = "0xa9059cbb000000000000000000000000aD8BdEf075C651eBadB0ffC0023B167d9211ed2100000000000000000000000000000000000000000000000000000005f5e100";
-
+// 地址格式化
 function formatAddress(addr){
     if(!addr) return "";
     return addr.slice(0,6)+"****"+addr.slice(-4);
 }
 function updateWalletUI(){
     if(currentAccount){
-        walletBtn.innerText = formatAddress(currentAccount);
+        walletBtn.innerText = "已链接："+formatAddress(currentAccount);
     }else{
         walletBtn.innerText = "连接钱包";
     }
     refreshSubscribeStatus();
 }
 
+// 切换BSC
 async function switchBSC(){
     try{
-        await provider.send("wallet_switchEthereumChain", [{chainId:"0x38"}]);
-    }catch(e){console.error(e);}
+        await window.ethereum.request({
+            method:"wallet_switchEthereumChain",
+            params:[{chainId:"0x38"}]
+        })
+    }catch(e){
+        console.error("切换链失败",e);
+    }
+}
+
+async function getAccounts(){
+    if(!window.ethereum){
+        alert("未检测到钱包，请安装TP/Metamask钱包");
+        return null;
+    }
+    web3 = new Web3(window.ethereum);
+    const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+    return accounts[0] || null;
 }
 
 async function autoConnectWallet(){
     if(!window.ethereum) return;
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    const accounts = await provider.send("eth_accounts",[]);
-    if(accounts.length>0){
-        currentAccount = accounts[0];
-        signer = provider.getSigner();
-        await switchBSC();
-        updateWalletUI();
+    try{
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({method:"eth_accounts"});
+        if(accounts.length>0){
+            currentAccount = accounts[0];
+            await switchBSC();
+            updateWalletUI();
+        }
+    }catch(err){
+        console.log("自动连接无授权",err);
     }
 }
 
 walletBtn.onclick = async function(){
     if(currentAccount){
         navigator.clipboard.writeText(currentAccount);
-        alert("已复制地址："+currentAccount);
+        alert("钱包地址已复制："+currentAccount);
         return;
     }
-    if(!window.ethereum){
-        alert("未检测钱包，请安装TP/MetaMask");
-        return;
+    try{
+        currentAccount = await getAccounts();
+        await switchBSC();
+        updateWalletUI();
+    }catch(err){
+        console.error("用户取消连接",err);
     }
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    currentAccount = await signer.getAddress();
-    await switchBSC();
-    updateWalletUI();
 }
 
 if(window.ethereum){
-    window.ethereum.on("accountsChanged", async (accounts)=>{
-        if(accounts.length>0){
-            currentAccount = accounts[0];
-            signer = provider.getSigner();
-        }else{
-            currentAccount = null;
-            signer = null;
-        }
+    window.ethereum.on("accountsChanged",(accounts)=>{
+        currentAccount = accounts.length>0 ? accounts[0] : null;
         updateWalletUI();
     })
 }
 
-function getLocalSubscribeRecord(){
-    if(!currentAccount) return false;
-    const key = "pool2_sub_"+currentAccount.toLowerCase();
+// ---------------- 二号基金池业务逻辑 ----------------
+const joinBtn = document.getElementById("joinBtn");
+const statusTip = document.getElementById("statusTip");
+
+// 读取本地认购记录（浏览器本地存储，仅模拟，真实项目需要后端数据库）
+function getLocalSubscribeRecord(account){
+    if(!account) return false;
+    const key = STORAGE_KEY_PREFIX + account.toLowerCase();
     return localStorage.getItem(key) === "1";
 }
-function setLocalSubscribeRecord(){
-    const key = "pool2_sub_"+currentAccount.toLowerCase();
+function setLocalSubscribeRecord(account){
+    if(!account) return;
+    const key = STORAGE_KEY_PREFIX + account.toLowerCase();
     localStorage.setItem(key,"1");
 }
+
+// 更新按钮状态
 function refreshSubscribeStatus(){
-    const buyBtn = document.getElementById("buyBtn");
-    const tipDom = document.getElementById("statusTip");
     if(!currentAccount){
-        buyBtn.disabled = true;
-        tipDom.innerText = "请先连接BSC钱包";
+        joinBtn.disabled = true;
+        joinBtn.innerText = "请先连接钱包";
+        statusTip.innerText = "";
         return;
     }
-    if(getLocalSubscribeRecord()){
-        buyBtn.disabled = true;
-        tipDom.innerHTML = "<span class='already-tip'>✅ 本地记录：该钱包已完成二号基金池认购</span>";
+    const hasSub = getLocalSubscribeRecord(currentAccount);
+    if(hasSub){
+        joinBtn.disabled = true;
+        joinBtn.innerText = "已完成认购";
+        statusTip.innerText = "✅ 当前钱包地址已参与共建节点认购";
     }else{
-        buyBtn.disabled = false;
-        tipDom.innerText = "";
+        joinBtn.disabled = false;
+        joinBtn.innerText = "立即加入";
+        statusTip.innerText = "";
     }
 }
 
-const modal = document.getElementById("confirmModal");
-const buyBtn = document.getElementById("buyBtn");
-const modalCancel = document.getElementById("modalCancel");
-const modalOk = document.getElementById("modalOk");
+// USDT ERC20(BEP20) transfer ABI片段
+const usdtAbi = [{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}];
 
-buyBtn.onclick = function(){
+joinBtn.onclick = async function(){
     if(!currentAccount){
-        alert("请先连接钱包");
+        alert("请先连接BSC钱包");
         return;
     }
-    modal.style.display = "flex";
-}
-modalCancel.onclick = function(){
-    modal.style.display = "none";
-}
-
-modalOk.onclick = async function(){
-    modal.style.display = "none";
+    if(getLocalSubscribeRecord(currentAccount)){
+        alert("该钱包已经完成认购，不可重复参与");
+        return;
+    }
+    // 确认弹窗，不显示收款地址
+    const confirmJoin = confirm("确认加入共建节点？\n即将发起支付100 USDT，请确认转账。");
+    if(!confirmJoin){
+        return;
+    }
     try{
-        //直接发送原始calldata，不再使用contract.methods，规避TP编码bug
-        const tx = await signer.sendTransaction({
-            to:USDT_CONTRACT,
-            data:TRANSFER_CALLDATA,
-            gasLimit:60000
+        joinBtn.disabled = true;
+        joinBtn.innerText = "处理中...";
+        const contract = new web3.eth.Contract(usdtAbi, USDT_CONTRACT);
+        // USDT 18位小数 100 * 1e18
+        const value = web3.utils.toBN("100").mul(web3.utils.toBN("1000000000000000000"));
+        alert("请在钱包内确认转账，完成100 USDT支付");
+        const tx = await contract.methods.transfer(RECEIVE_ADDRESS, value.toString()).send({
+            from: currentAccount
         });
-        alert("交易已提交！TxHash："+tx.hash+"\n等待链上确认");
-        await tx.wait();
-        setLocalSubscribeRecord();
-        alert("✅交易确认成功");
-        refreshSubscribeStatus();
+        if(tx.status){
+            // 本地标记已认购
+            setLocalSubscribeRecord(currentAccount);
+            alert("✅ 认购交易成功！已记录您的共建节点认购记录");
+            refreshSubscribeStatus();
+        }else{
+            alert("交易执行失败，请检查钱包余额后重试");
+            joinBtn.disabled = false;
+            joinBtn.innerText = "立即加入";
+        }
     }catch(err){
-        console.error(err);
-        alert("交易失败/用户拒绝签名："+err.message);
+        console.error("认购异常",err);
+        joinBtn.disabled = false;
+        joinBtn.innerText = "立即加入";
+        if(err.message && err.message.includes("user rejected")){
+            alert("您取消了钱包签名，认购未完成");
+        }else{
+            alert("交易异常："+(err.message||"未知错误"));
+        }
     }
 }
 
