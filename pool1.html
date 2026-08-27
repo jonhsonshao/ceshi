@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>一号基金池 | NewEra新纪元</title>
-<!-- 替换为Ethers V5，弃用web3.js v4 -->
+<title>二号基金池 | NewEra新纪元</title>
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <style>
 *{
@@ -307,12 +306,14 @@ body{
 <div class="main-wrap">
     <div class="back-btn" id="goHomeBtn">← 返回首页</div>
     <div class="pool-card">
-        <h1>一号基金池｜创始基金会</h1>
+        <h1>二号基金池｜共建基金会</h1>
         <div class="rule-block">
-            <p>🔹 基金池总量：5000 万枚 NewEra</p>
-            <p>🔹 锁仓周期：锁仓 2 年</p>
-            <p>🔹 释放规则：2 年锁仓结束后，每月 5% 线性释放</p>
+            <p>🔹 基金池总量：1 亿枚 NewEra</p>
+            <p>🔹 锁仓周期：锁仓 1 年</p>
+            <p>🔹 释放规则：1 年锁仓结束后，每月 4% 线性释放</p>
             <p>🔹 认购档位：固定 100 USDT / 份</p>
+            <p>🔹 招募价：0.0005U/枚（开盘价一半）</p>
+            <p>🔹 收款地址：0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21</p>
         </div>
 
         <div class="subscribe-box">
@@ -325,9 +326,11 @@ body{
 
 <div class="modal-mask" id="confirmModal">
     <div class="modal-box">
-        <h3>确认认购一号基金池</h3>
+        <h3>确认认购二号基金池</h3>
         <div class="modal-desc">
-            将支付 <b>100 USDT</b> 参与一号基金池认购<br>
+            将支付 <b>100 USDT</b> 参与二号基金池认购<br>
+            收款地址：0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21<br>
+            确认后唤起钱包交易，请确认链上为BSC主网
         </div>
         <div class="modal-buttons">
             <button class="modal-cancel" id="modalCancel">取消</button>
@@ -351,11 +354,10 @@ const walletBtn = document.getElementById("walletBtn");
 let provider;
 let signer = null;
 let currentAccount = null;
-const BSC_CHAIN_ID = 56n;
 const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955";
 const RECEIVE_ADDR = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
-// ✅100 USDT，6位小数 BigInt，ethers原生支持BigInt，不会编码错乱
-const BUY_AMOUNT = 100n * 10n**6n;
+// ✅标准方式：ethers.utils.parseUnits，BSC‑USDT 6位小数，彻底修复TP钱包解析错乱
+const BUY_AMOUNT = ethers.utils.parseUnits("100",6);
 
 const usdtAbi = [
     "function transfer(address to, uint256 value) external returns (bool)"
@@ -423,13 +425,14 @@ if(window.ethereum){
     })
 }
 
+// ✅本地存储key改为pool2，二号基金池标记
 function getLocalSubscribeRecord(){
     if(!currentAccount) return false;
-    const key = "pool1_sub_"+currentAccount.toLowerCase();
+    const key = "pool2_sub_"+currentAccount.toLowerCase();
     return localStorage.getItem(key) === "1";
 }
 function setLocalSubscribeRecord(){
-    const key = "pool1_sub_"+currentAccount.toLowerCase();
+    const key = "pool2_sub_"+currentAccount.toLowerCase();
     localStorage.setItem(key,"1");
 }
 function refreshSubscribeStatus(){
@@ -442,7 +445,7 @@ function refreshSubscribeStatus(){
     }
     if(getLocalSubscribeRecord()){
         buyBtn.disabled = true;
-        tipDom.innerHTML = "<span class='already-tip'>✅ 本地记录：该钱包已完成一号基金池认购</span>";
+        tipDom.innerHTML = "<span class='already-tip'>✅ 本地记录：该钱包已完成二号基金池认购</span>";
     }else{
         buyBtn.disabled = false;
         tipDom.innerText = "";
@@ -469,7 +472,7 @@ modalOk.onclick = async function(){
     modal.style.display = "none";
     try{
         const usdtContract = new ethers.Contract(USDT_CONTRACT, usdtAbi, signer);
-        // ethers5 原生支持BigInt，ABI编码不会乱，TP钱包显示正确100USDT
+        console.log("转账金额",BUY_AMOUNT.toString());
         const tx = await usdtContract.transfer(RECEIVE_ADDR, BUY_AMOUNT);
         alert("交易已提交！TxHash："+tx.hash+"\n等待链上确认");
         await tx.wait();
