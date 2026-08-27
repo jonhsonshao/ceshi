@@ -405,7 +405,7 @@ function formatAddress(addr){
 // 更新按钮显示状态
 function updateWalletUI(){
     if(currentAccount){
-        walletBtn.innerText = "已链接："+formatAddress(currentAccount);
+        walletBtn.innerText = ""+formatAddress(currentAccount);
     }else{
         walletBtn.innerText = "连接钱包";
     }
