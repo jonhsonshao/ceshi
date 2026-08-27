@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三号基金池 | 基础共识私募 NewEra</title>
+<script src="https://cdn.jsdelivr.net/npm/web3@4.8.0/dist/web3.min.js"></script>
+<style>
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+:root{
+    --era-blue:#00b8ff;
+    --era-purple:#924cff;
+    --era-green:#66e8c0;
+    --main-gradient:linear-gradient(90deg,#00b8ff,#924cff);
+}
+body{
+    background:#05050c;
+    background-image:
+        radial-gradient(circle at 15% 15%, rgba(10, 20, 70, 0.35) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(5, 35, 60, 0.3) 0%, transparent 45%);
+    min-height:100vh;
+    color:#e8edff;
+    overflow-x:hidden;
+}
+/* 顶部导航栏 */
+.header-bar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    padding:16px 32px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(8,8,16,0.6);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    z-index:99;
+}
+.logo-wrap{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+.logo-text{
+    font-size:22px;
+    font-weight:600;
+    background:var(--main-gradient);
+    -webkit-background-clip:text;
+    color:transparent;
+    letter-spacing:1px;
+}
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    max-width:50%;
+    justify-content:flex-end;
+}
+.wallet-box{
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid rgba(0,184,255,0.3);
+    color:var(--era-blue);
+    background:rgba(0,184,255,0.08);
+    font-size:12px;
+    cursor:pointer;
+    transition:0.25s;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:220px;
+}
+.wallet-box:hover{
+    box-shadow:0 0 12px rgba(0,184,255,0.25);
+}
+.menu-trigger{
+    width:42px;
+    height:42px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.05);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    cursor:pointer;
+    transition:0.25s;
+    flex-shrink:0;
+}
+.menu-trigger:hover{
+    border-color:rgba(146,76,255,0.4);
+}
+.menu-trigger span{
+    width:22px;
+    height:2px;
+    background:#d0d8ff;
+    border-radius:1px;
+    transition:0.3s;
+}
+/* 侧边抽屉导航面板 */
+.side-nav{
+    position:fixed;
+    top:80px;
+    right:-320px;
+    width:300px;
+    background:rgba(12,12,26,0.85);
+    backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px 0 0 16px;
+    padding:30px;
+    transition:right 0.35s ease;
+    z-index:98;
+}
+.side-nav.open{
+    right:0;
+}
+.side-nav h3{
+    font-size:18px;
+    margin-bottom:24px;
+    color:#fff;
+    padding-bottom:12px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.nav-item{
+    display:block;
+    width:100%;
+    padding:14px 16px;
+    margin-bottom:10px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.03);
+    text-align:left;
+    font-size:15px;
+    cursor:pointer;
+    transition:0.25s;
+}
+.nav-item:nth-child(2){color:var(--era-blue);}
+.nav-item:nth-child(3){color:#b388ff;}
+.nav-item:nth-child(4){color:#66e8c0;}
+.nav-item:nth-child(5){color:#ffc460;}
+.nav-item:hover{
+    background:rgba(255,255,255,0.08);
+    border-color:rgba(255,255,255,0.15);
+}
+/* 主内容 */
+.main-wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding:140px 20px 60px;
+}
+.page-title{
+    text-align:center;
+    font-size:38px;
+    margin-bottom:30px;
+    color:var(--era-green);
+    text-shadow:0 0 12px rgba(102,232,192,0.35);
+}
+.pool-card{
+    background:rgba(12,12,24,0.68);
+    backdrop-filter:blur(12px);
+    border-radius:22px;
+    border:1px solid rgba(102,232,192,0.18);
+    padding:40px;
+    margin-bottom:30px;
+}
+.pool-card h3{
+    font-size:22px;
+    color:var(--era-green);
+    margin-bottom:20px;
+}
+.rule-list{
+    list-style:none;
+    margin-bottom:36px;
+}
+.rule-list li{
+    color:#cbd4f0;
+    line-height:2.1;
+    font-size:16px;
+    padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.rule-list li:last-child{
+    border-bottom:none;
+}
+.buy-panel{
+    background:rgba(16,28,32,0.6);
+    border-radius:16px;
+    padding:30px;
+    border:1px solid rgba(102,232,192,0.14);
+}
+.buy-info-row{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 0;
+    font-size:16px;
+    color:#d1d8ff;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.buy-info-row:last-child{
+    border:none;
+}
+.join-btn{
+    width:100%;
+    margin-top:28px;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    font-size:17px;
+    cursor:pointer;
+    background:linear-gradient(90deg,#66e8c0,#00b8ff);
+    color:#ffffff;
+    box-shadow:0 0 18px rgba(102,232,192,0.35);
+    transition:0.24s;
+}
+.join-btn:hover{
+    box-shadow:0 0 26px rgba(102,232,192,0.5);
+}
+.join-btn:active{
+    transform:scale(0.97);
+}
+.join-btn:disabled{
+    opacity:0.45;
+    cursor:not-allowed;
+    box-shadow:none;
+    transform:none;
+}
+.status-tip{
+    text-align:center;
+    margin-top:16px;
+    font-size:15px;
+    color:#66e8c0;
+}
+.back-link{
+    display:inline-block;
+    margin-bottom:20px;
+    color:#88aaff;
+    cursor:pointer;
+}
+@media(max-width:540px){
+    .header-bar{padding:12px 16px;}
+    .logo-text{font-size:17px;}
+    .header-right{
+        max-width:50%;
+        gap:10px;
+    }
+    .wallet-box{
+        font-size:11px;
+        padding:5px 8px;
+        max-width:140px;
+    }
+    .page-title{font-size:26px;}
+    .pool-card{padding:22px 18px;}
+    .rule-list li{font-size:14px; line-height:1.9;}
+    .buy-panel{padding:20px 16px;}
+    .buy-info-row{font-size:14px;}
+    .side-nav{width:calc(100% - 20px);right:calc(-100% + 10px);}
+}
+</style>
+</head>
+<body>
+<header class="header-bar">
+    <div class="logo-wrap">
+        <div class="logo-text">NewEra</div>
+    </div>
+    <div class="header-right">
+        <div class="wallet-box" id="walletBtn">连接钱包</div>
+        <div class="menu-trigger" id="menuBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</header>
+
+<div class="side-nav" id="sideMenu">
+    <h3>导航菜单</h3>
+    <div class="nav-item" onclick="location.href='./index.html'">代币兑换</div>
+    <div class="nav-item" onclick="location.href='./pool2.html'">流动性池</div>
+    <div class="nav-item">质押挖矿</div>
+    <div class="nav-item">收益查询</div>
+</div>
+
+<div class="main-wrap">
+    <span class="back-link" onclick="location.href='./index.html'">← 返回首页</span>
+    <h1 class="page-title">三号基金池｜基础共识私募</h1>
+
+    <div class="pool-card">
+        <h3>基础共识私募 规则说明</h3>
+        <ul class="rule-list">
+            <li>认购门槛：10 USDT / 每份（超低门槛共识私募）</li>
+            <li>代币单价：0.0008 U / 枚</li>
+            <li>每份获得：12500 枚 NewEra</li>
+            <li>基金池总量：1亿枚，仅限8000名额，先抢先得</li>
+            <li>锁仓周期：锁仓 180 天</li>
+            <li>释放规则：锁仓期满后，每日 1% 线性释放</li>
+            <li>推广激励：参与共建节点用户，直推1份私募奖励500枚（无锁仓）</li>
+            <li>参与定位：普惠级共识池，打造海量基层生态用户</li>
+        </ul>
+
+        <div class="buy-panel">
+            <div class="buy-info-row">
+                <span>认购档位</span>
+                <span>10 USDT 固定一份</span>
+            </div>
+            <div class="buy-info-row">
+                <span>获得代币</span>
+                <span>12500 枚 NewEra</span>
+            </div>
+            <div class="buy-info-row">
+                <span>锁仓时间</span>
+                <span>锁仓 180 天</span>
+            </div>
+            <div class="buy-info-row">
+                <span>释放方式</span>
+                <span>到期每日1%线性释放</span>
+            </div>
+
+            <button class="join-btn" id="joinBtn">立即加入</button>
+            <div class="status-tip" id="statusTip"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 侧边菜单
+const menuBtn = document.getElementById('menuBtn');
+const sideMenu = document.getElementById('sideMenu');
+menuBtn.onclick = function(){
+    sideMenu.classList.toggle('open');
+}
+
+// 钱包全局变量
+const walletBtn = document.getElementById("walletBtn");
+let web3;
+let currentAccount = null;
+const BSC_CHAIN_ID = 56;
+const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955";
+const RECEIVE_ADDRESS = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
+// 10 USDT 18位精度，Web3 v4 纯BigInt写法
+const AMOUNT_RAW = 10n * 10n ** 18n;
+const STORAGE_KEY_PREFIX = "pool3_subscribed_";
+
+// 地址格式化
+function formatAddress(addr){
+    if(!addr) return "";
+    return addr.slice(0,6)+"****"+addr.slice(-4);
+}
+function updateWalletUI(){
+    if(currentAccount){
+        walletBtn.innerText = "已链接："+formatAddress(currentAccount);
+    }else{
+        walletBtn.innerText = "连接钱包";
+    }
+    refreshSubscribeStatus();
+}
+
+// 切换BSC
+async function switchBSC(){
+    try{
+        await window.ethereum.request({
+            method:"wallet_switchEthereumChain",
+            params:[{chainId:"0x38"}]
+        })
+    }catch(e){
+        console.error("切换链失败",e);
+    }
+}
+
+async function getAccounts(){
+    if(!window.ethereum){
+        alert("未检测到钱包，请安装TP/Metamask钱包");
+        return null;
+    }
+    web3 = new Web3(window.ethereum);
+    const accounts = await window.ethereum.request({method:"eth_requestAccounts"});
+    return accounts[0] || null;
+}
+
+async function autoConnectWallet(){
+    if(!window.ethereum) return;
+    try{
+        web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({method:"eth_accounts"});
+        if(accounts.length>0){
+            currentAccount = accounts[0];
+            await switchBSC();
+            updateWalletUI();
+        }
+    }catch(err){
+        console.log("自动连接无授权",err);
+    }
+}
+
+walletBtn.onclick = async function(){
+    if(currentAccount){
+        navigator.clipboard.writeText(currentAccount);
+        alert("钱包地址已复制："+currentAccount);
+        return;
+    }
+    try{
+        currentAccount = await getAccounts();
+        await switchBSC();
+        updateWalletUI();
+    }catch(err){
+        console.error("用户取消连接",err);
+    }
+}
+
+if(window.ethereum){
+    window.ethereum.on("accountsChanged",(accounts)=>{
+        currentAccount = accounts.length>0 ? accounts[0] : null;
+        updateWalletUI();
+    })
+}
+
+// ---------------- 三号基金池业务逻辑 ----------------
+const joinBtn = document.getElementById("joinBtn");
+const statusTip = document.getElementById("statusTip");
+
+function getLocalSubscribeRecord(account){
+    if(!account) return false;
+    const key = STORAGE_KEY_PREFIX + account.toLowerCase();
+    return localStorage.getItem(key) === "1";
+}
+function setLocalSubscribeRecord(account){
+    if(!account) return;
+    const key = STORAGE_KEY_PREFIX + account.toLowerCase();
+    localStorage.setItem(key,"1");
+}
+
+function refreshSubscribeStatus(){
+    if(!currentAccount){
+        joinBtn.disabled = true;
+        joinBtn.innerText = "请先连接钱包";
+        statusTip.innerText = "";
+        return;
+    }
+    const hasSub = getLocalSubscribeRecord(currentAccount);
+    if(hasSub){
+        joinBtn.disabled = true;
+        joinBtn.innerText = "已完成认购";
+        statusTip.innerText = "✅ 当前钱包已完成基础共识私募认购";
+    }else{
+        joinBtn.disabled = false;
+        joinBtn.innerText = "立即加入";
+        statusTip.innerText = "";
+    }
+}
+
+const usdtAbi = [{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}];
+
+joinBtn.onclick = async function(){
+    if(!currentAccount){
+        alert("请先连接BSC钱包");
+        return;
+    }
+    if(getLocalSubscribeRecord(currentAccount)){
+        alert("该钱包已参与三号私募认购，不可重复参与");
+        return;
+    }
+    const confirmJoin = confirm("确认加入基础共识私募？\n即将发起支付10 USDT，请确认转账。");
+    if(!confirmJoin){
+        return;
+    }
+    try{
+        joinBtn.disabled = true;
+        joinBtn.innerText = "处理中...";
+        const contract = new web3.eth.Contract(usdtAbi, USDT_CONTRACT);
+        const tx = await contract.methods.transfer(RECEIVE_ADDRESS, AMOUNT_RAW.toString()).send({
+            from: currentAccount
+        });
+        if(tx.status){
+            setLocalSubscribeRecord(currentAccount);
+            alert("✅ 三号基金池私募认购成功！\n已记录您的共识用户资格\n交易哈希："+tx.transactionHash);
+            refreshSubscribeStatus();
+        }else{
+            alert("交易执行失败，请检查余额后重试");
+            joinBtn.disabled = false;
+            joinBtn.innerText = "立即加入";
+        }
+    }catch(err){
+        console.error("认购异常",err);
+        joinBtn.disabled = false;
+        joinBtn.innerText = "立即加入";
+        const msg = err?.message || "";
+        if(msg.includes("user rejected")){
+            alert("您取消了签名，认购未完成");
+        }else{
+            alert("交易异常："+msg);
+        }
+    }
+}
+
+window.onload = function(){
+    autoConnectWallet();
+}
+</script>
+</body>
+</html>
