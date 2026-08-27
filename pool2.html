@@ -343,8 +343,8 @@ let currentAccount = null;
 const BSC_CHAIN_ID = 56;
 const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT合约
 const RECEIVE_ADDRESS = "0xaD8BdEf075C651eBadB0ffC0023B167d9211ed21";
-const AMOUNT_USDT = "100";
-// 本地存储key，按钱包地址记录认购状态
+// 100 USDT，18位精度
+const AMOUNT_RAW = 100n * 10n ** 18n;
 const STORAGE_KEY_PREFIX = "pool2_subscribed_";
 
 // 地址格式化
@@ -424,7 +424,6 @@ if(window.ethereum){
 const joinBtn = document.getElementById("joinBtn");
 const statusTip = document.getElementById("statusTip");
 
-// 读取本地认购记录（浏览器本地存储，仅模拟，真实项目需要后端数据库）
 function getLocalSubscribeRecord(account){
     if(!account) return false;
     const key = STORAGE_KEY_PREFIX + account.toLowerCase();
@@ -436,7 +435,6 @@ function setLocalSubscribeRecord(account){
     localStorage.setItem(key,"1");
 }
 
-// 更新按钮状态
 function refreshSubscribeStatus(){
     if(!currentAccount){
         joinBtn.disabled = true;
@@ -456,7 +454,6 @@ function refreshSubscribeStatus(){
     }
 }
 
-// USDT ERC20(BEP20) transfer ABI片段
 const usdtAbi = [{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}];
 
 joinBtn.onclick = async function(){
@@ -468,7 +465,6 @@ joinBtn.onclick = async function(){
         alert("该钱包已经完成认购，不可重复参与");
         return;
     }
-    // 确认弹窗，不显示收款地址
     const confirmJoin = confirm("确认加入共建节点？\n即将发起支付100 USDT，请确认转账。");
     if(!confirmJoin){
         return;
@@ -477,16 +473,13 @@ joinBtn.onclick = async function(){
         joinBtn.disabled = true;
         joinBtn.innerText = "处理中...";
         const contract = new web3.eth.Contract(usdtAbi, USDT_CONTRACT);
-        // USDT 18位小数 100 * 1e18
-        const value = web3.utils.toBN("100").mul(web3.utils.toBN("1000000000000000000"));
-        alert("请在钱包内确认转账，完成100 USDT支付");
-        const tx = await contract.methods.transfer(RECEIVE_ADDRESS, value.toString()).send({
+        // BigInt转字符串传给合约
+        const tx = await contract.methods.transfer(RECEIVE_ADDRESS, AMOUNT_RAW.toString()).send({
             from: currentAccount
         });
         if(tx.status){
-            // 本地标记已认购
             setLocalSubscribeRecord(currentAccount);
-            alert("✅ 认购交易成功！已记录您的共建节点认购记录");
+            alert("✅ 认购交易成功！已记录您的共建节点认购记录\n交易哈希：" + tx.transactionHash);
             refreshSubscribeStatus();
         }else{
             alert("交易执行失败，请检查钱包余额后重试");
@@ -497,10 +490,11 @@ joinBtn.onclick = async function(){
         console.error("认购异常",err);
         joinBtn.disabled = false;
         joinBtn.innerText = "立即加入";
-        if(err.message && err.message.includes("user rejected")){
+        const msg = err?.message || "";
+        if(msg.includes("user rejected") || msg.includes("用户拒绝")){
             alert("您取消了钱包签名，认购未完成");
         }else{
-            alert("交易异常："+(err.message||"未知错误"));
+            alert("交易异常："+ msg);
         }
     }
 }
