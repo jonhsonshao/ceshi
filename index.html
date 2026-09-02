@@ -58,7 +58,7 @@ body{
     display:flex;
     align-items:center;
     gap:20px;
-    max-width:50%; /* 右侧整体不越过屏幕中线 */
+    max-width:50%;
     justify-content:flex-end;
 }
 .wallet-box{
@@ -67,7 +67,7 @@ body{
     border:1px solid rgba(0,184,255,0.3);
     color:var(--era-blue);
     background:rgba(0,184,255,0.08);
-    font-size:12px; /* 缩小字体 */
+    font-size:12px;
     cursor:pointer;
     transition:0.25s;
     white-space:nowrap;
@@ -144,6 +144,7 @@ body{
 .nav-item:nth-child(3){color:#b388ff;}
 .nav-item:nth-child(4){color:#66e8c0;}
 .nav-item:nth-child(5){color:#ffc460;}
+.nav-item:nth-child(6){color:#ffffff;}
 .nav-item:hover{
     background:rgba(255,255,255,0.08);
     border-color:rgba(255,255,255,0.15);
@@ -169,39 +170,12 @@ body{
     border-radius:20px;
     padding:36px;
     border:1px solid rgba(255,255,255,0.08);
-    margin-bottom:30px;
+    margin-bottom:50px;
 }
 .desc-card p{
     color:#cbd4f0;
     line-height:1.9;
     font-size:16px;
-}
-/* 代币分配锁仓卡片 */
-.allocation-card{
-    background:rgba(12,12,24,0.65);
-    backdrop-filter:blur(10px);
-    border-radius:20px;
-    padding:36px;
-    border:1px solid rgba(0,184,255,0.12);
-    margin-bottom:50px;
-}
-.allocation-card h3{
-    font-size:22px;
-    color:var(--era-blue);
-    margin-bottom:22px;
-    text-shadow:0 0 8px rgba(0,184,255,0.3);
-}
-.allocation-card ul{
-    list-style:none;
-}
-.allocation-card li{
-    color:#cbd4f0;
-    font-size:16px;
-    line-height:2.2;
-    border-bottom:1px solid rgba(255,255,255,0.05);
-}
-.allocation-card li:last-child{
-    border-bottom:none;
 }
 .card-grid{
     display:grid;
@@ -274,7 +248,7 @@ body{
     .header-bar{padding:12px 16px;}
     .logo-text{font-size:17px;}
     .header-right{
-        max-width:50%; /* 手机端右侧区域最大50%屏幕，不越过中线 */
+        max-width:50%;
         gap:10px;
     }
     .wallet-box{
@@ -285,8 +259,6 @@ body{
     .hero-title{font-size:26px;}
     .desc-card{padding:20px 16px;}
     .desc-card p{font-size:14px;}
-    .allocation-card{padding:20px 16px;}
-    .allocation-card li{font-size:13px; line-height:2;}
     .card-grid{grid-template-columns:1fr;}
     .side-nav{width:calc(100% - 20px);right:calc(-100% + 10px);}
 }
@@ -308,13 +280,14 @@ body{
     </div>
 </header>
 
-<!-- 侧边菜单 -->
+<!-- 侧边菜单（新增代币发行与获取规则） -->
 <div class="side-nav" id="sideMenu">
     <h3>导航菜单</h3>
-    <div class="nav-item">代币兑换</div>
-    <div class="nav-item">流动性池</div>
-    <div class="nav-item">质押挖矿</div>
+    <div class="nav-item" onclick="location.href='./pool1.html'">代币兑换</div>
+    <div class="nav-item" onclick="location.href='./pool2.html'">流动性池</div>
+    <div class="nav-item" onclick="location.href='./pool3.html'">质押挖矿</div>
     <div class="nav-item">收益查询</div>
+    <div class="nav-item" onclick="location.href='./rule.html'">代币发行与获取规则</div>
 </div>
 
 <!-- 主内容 -->
@@ -324,38 +297,6 @@ body{
     <!-- 项目说明大段文本 -->
     <div class="desc-card">
         <p>基于BSC公链搭建去中心化数字资产生态，一站式兑换、质押、流动性服务。该代币将区别于市场上其他各种韭菜币，土狗币，而是想要打造一个真正意义上有价值的区块链代币，通过强共识模型让所有参与者都可以找到归属，让市值做到稳步上涨，让代币价值体系越来越高，通过锁仓所有前期参与者的方式，来组建强有力的铁军体系，打造更有力的未来生态体系，同时，给予更多的人一个机会参与首发，也将给予更多的人自愿前来搭建生态体系。</p>
-    </div>
-
-    <!-- 代币分配与释放规则 -->
-    <div class="allocation-card">
-        <h3>代币发行与获取规则</h3>
-        <ul>
-           <li>代币总发行量21亿枚，发行价0.001U/枚</li>
-            
-           <li>创始节点（一号基金池）：5000 万枚，锁仓 2 年，2 年之后按照每月 5% 线性释放</li>
-            
-            <li>共建节点（二号基金会）：1 亿枚，锁仓 1 年，1 年之后按照每月 4% 线性释放，按照100U/份，单价0.0005U/枚，即100U=200000枚，限500名额，先到先得</li>
-            
-            <li>基础共识者私募（三号基金池）：1 亿枚，锁仓 180 天，180 天之后按照每天 1% 线性释放，10U/份，单价0.0008U/枚，即10U=12500枚，限8000名额；先抢先得</li>
-            
-            <li>四号基金池（质押产出）：1 亿枚，按照质押额每天1%获得，时间周期110 天， 10% 数量增益（扩大共识机制）</li>
-            
-            <li>五号基金池（开盘价公平发射）：2 亿枚，开盘价公平兑换（100 天内兑完截止，未兑完部分全部销毁）（给所有人一个参与首发的机会）</li>
-            
-            <li>六号基金池（空投池）：2 亿枚，每个地址每 24 小时可领取一次空投，每次领取100枚（合约有效时间100 天，领完为止，未领完销毁）（让更多的人认识我们，让更多人见证奇迹）</li>
-            
-            <li>LP底池建设：2000万枚</li>
-            
-            <li>市场共识激励1：1000万枚，空投给共建节点</li>
-<li>1、共建节点推广激励：自身参与认购共建节点，推广一个共建节点，奖励10000枚（不锁仓），直推10个共建节点以上可获创始节点1%的份额</li>
-<li>2、私募推广激励：自身参与认购共建节点，推广一份私募，奖励500枚（不锁仓）</li>
-           
-            <li>市值管理团队：3000万枚，锁仓1年，1年之后按照日释放1%</li>
-            
-            <li>市场共识激励2：4000万枚，空投给市场共识成员，由基金会成员投票决议</li>
-            
-            <li>生态建设池：12.5亿</li>
-        </ul>
     </div>
 
     <div class="card-grid">
@@ -484,7 +425,6 @@ document.querySelector(".pool1 .enter-btn").onclick = function(){
     location.href = "./pool1.html";
 };
 document.querySelector(".pool2 .enter-btn").onclick = function(){
-    //后续二号页面写好后改成 pool2.html
     location.href = "./pool2.html";
 };
 document.querySelector(".pool3 .enter-btn").onclick = function(){
